@@ -1,0 +1,23 @@
+{
+  "name": "nextjs-rust-wasm-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": ["apps/*", "packages/*"],
+  "scripts": {
+    "dev": "turbo run dev --parallel",
+    "build": "turbo run build",
+    "lint": "turbo run lint && biome check .",
+    "lint:fix": "turbo run format --filter=wasm-lib && biome check --write . && turbo run lint --filter=wasm-lib",
+    "lint:fix_unsafe": "turbo run format --filter=wasm-lib && biome check --fix --unsafe . && turbo run lint --filter=wasm-lib",
+    "format": "turbo run format && biome format --write .",
+    "test": "turbo run test",
+    "test:wasm": "turbo run test:wasm",
+    "test:e2e": "turbo run build --filter=web... && turbo run test:e2e",
+    "clean": "turbo run clean && rm -rf node_modules .turbo"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.5.3",
+    "turbo": "^1.12.4",
+    "typescript": "^5.3.3"
+  }
+}

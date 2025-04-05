@@ -1,0 +1,15 @@
+{
+  "name": "wasm-lib",
+  "version": "0.1.0",
+  "main": "./pkg/wasm_lib.js",
+  "types": "./pkg/wasm_lib.d.ts",
+  "files": ["pkg"],
+  "scripts": {
+    "build": "wasm-pack build --target web --out-dir ./pkg",
+    "lint": "cargo clippy -- -D warnings",
+    "format": "cargo fmt --all",
+    "test": "cargo test",
+    "test:wasm": "wasm-pack test --headless --firefox",
+    "clean": "rm -rf pkg target"
+  }
+}

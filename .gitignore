@@ -1,0 +1,55 @@
+# dependencies
+node_modules
+.pnp
+.pnp.js
+.yarn/install-state.gz
+
+# testing
+coverage
+test-results
+playwright-report
+playwright/.cache
+
+# next.js
+.next/
+out/
+
+# production
+build
+dist
+.build
+
+# rust / wasm
+pkg/
+target/
+**/*.rs.bk
+.wasm-pack-*
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# local env files
+.env*.local
+
+# turbo
+.turbo
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+
+# IDE
+.idea
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json

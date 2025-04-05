@@ -1,0 +1,86 @@
+name: CI Checks
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+# Allow only one concurrent run per branch/PR, cancel older runs
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  TURBO_REMOTE_ONLY: true # Only use remote cache, don't save locally in CI
+  TURBO_CONCURRENCY: 4 # Adjust based on runner cores
+
+jobs:
+  ci-checks:
+    name: Lint, Test & Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # 1. Setup Environment
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v2
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'pnpm'
+
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+          components: rustfmt, clippy
+
+      - name: Install wasm-pack
+        uses: jetli/wasm-pack-action@v0.4.0
+        with:
+          version: 'v0.13.1'
+        
+      # 2. Install Dependencies
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      # 3. Linting and Formatting Check
+      - name: Run Linters (Biome + Package Specific)
+        run: pnpm run lint
+
+      # 4. Build All Packages
+      - name: Build All Packages
+        run: pnpm turbo run build
+
+      # 5. Run Tests
+      - name: Run Rust Unit Tests (wasm-lib)
+        run: pnpm turbo run test --filter=wasm-lib
+
+      - name: Run WASM Integration Tests (wasm-lib)
+        run: pnpm turbo run test:wasm --filter=wasm-lib
+
+      - name: Run JS/TS Unit/Integration Tests (web)
+        run: pnpm turbo run test --filter=web...
+
+      # 6. Run E2E Tests
+      - name: Install Playwright Browsers
+        run: pnpm --filter web exec playwright install --with-deps
+
+      - name: Run E2E Tests (web)
+        run: pnpm turbo run test:e2e --filter=web...
+
+      # Upload Test Reports
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: apps/web/playwright-report/
+          retention-days: 7
